@@ -26,20 +26,20 @@ const FeedNavigator = createBottomTabNavigator(
         title: '',
       },
     },
-    NewPost: {
-      screen: NewPostPage,
-      navigationOptions: {
-        tabBarIcon: ({ tintColor }) => (
-          <EntypoIcon
-            style={{ paddingTop: 8 }}
-            name="circle-with-plus"
-            size={28}
-            color={tintColor}
-          />
-        ),
-        title: '',
-      },
-    },
+    // NewPost: {
+    //   screen: NewPostPage,
+    //   navigationOptions: {
+    //     tabBarIcon: ({ tintColor }) => (
+    //       <EntypoIcon
+    //         style={{ paddingTop: 8 }}
+    //         name="circle-with-plus"
+    //         size={28}
+    //         color={tintColor}
+    //       />
+    //     ),
+    //     title: '',
+    //   },
+    // },
   },
   {
     initialRouteName: 'Feed',
@@ -54,7 +54,10 @@ const Routes = createAppContainer(
   createStackNavigator(
     {
       Home: {
-        screen: FeedNavigator,
+        screen: FeedPage,
+      },
+      NewPost: {
+        screen: NewPostPage,
       },
     },
     {
