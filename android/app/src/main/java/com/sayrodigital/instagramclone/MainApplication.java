@@ -1,4 +1,4 @@
-package com.client;
+package com.sayrodigital.instagramclone;
 
 import android.app.Application;
 import android.content.Context;

@@ -109,7 +109,12 @@ function Feed({ navigation }) {
               />
 
               <Content>
-                <Name>Bruno Lombardi</Name> {item.content}
+                <Name>
+                  {item.author
+                    ? `${item.author.firstName} ${item.author.lastName}`
+                    : 'Sem Autor'}
+                </Name>{' '}
+                {item.content}
               </Content>
             </Post>
           )}
