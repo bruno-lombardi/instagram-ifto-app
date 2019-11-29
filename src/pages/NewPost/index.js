@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import ImagePicker from 'react-native-image-crop-picker';
 import EntypoIcon from 'react-native-vector-icons/Entypo';
 import { NavigationActions, StackActions } from 'react-navigation';
+import { ToastAndroid } from 'react-native';
+import { onSignIn } from '../../services/auth';
 
 import {
   Container,
@@ -13,6 +15,7 @@ import {
   SubmitButton,
 } from './styles';
 import { Loading } from './styles';
+import api from '../../services/api';
 
 function NewPost({ navigation }) {
   const [image, setImage] = useState(null);
@@ -66,14 +69,13 @@ function NewPost({ navigation }) {
 
     try {
       setLoading(true);
-      const response = await fetch('http://192.168.0.104:3333/api/v1/post', {
+      const response = await api.post('api/v1/post', form, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
-        method: 'POST',
-        body: form,
       });
-      const { post } = await response.json();
+
+      const { post } = response.data;
       if (post.id) {
         setLoading(false);
         const resetAction = StackActions.reset({
@@ -84,7 +86,12 @@ function NewPost({ navigation }) {
       }
     } catch (err) {
       setLoading(false);
-      console.log(err);
+      console.log('Erro: ', err);
+      ToastAndroid.showWithGravity(
+        'Ops! Não foi possível compartilhar seu post.',
+        ToastAndroid.SHORT,
+        ToastAndroid.CENTER,
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [content, image]);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, FlatList } from 'react-native';
-import { API_URL } from 'react-native-dotenv';
+import { View, FlatList, TouchableOpacity } from 'react-native';
+import EntypoIcon from 'react-native-vector-icons/Entypo';
 
 import {
   Post,
@@ -12,8 +12,16 @@ import {
   AddPostButton,
 } from './styles';
 import LazyImage from '../../components/LazyImage';
+import api from '../../services/api';
+import { onSignOut } from '../../services/auth';
 
-export default function Feed({ navigation }) {
+const SignOutButton = ({ onPress, ...props }) => (
+  <TouchableOpacity {...props} onPress={onPress}>
+    <EntypoIcon name="log-out" size={24} color="#1a202c" />
+  </TouchableOpacity>
+);
+
+function Feed({ navigation }) {
   const [posts, setPosts] = useState([]);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
@@ -26,19 +34,29 @@ export default function Feed({ navigation }) {
       return;
     }
     setLoading(true);
-    const response = await fetch(
-      `${API_URL}/api/v1/post?limit=5&page=${pageNumber}`,
-    );
-
-    const postData = await response.json();
+    const response = await api.get('api/v1/post', {
+      params: {
+        limit: 5,
+        page: pageNumber,
+      },
+    });
+    const postData = response.data;
     setTotal(postData.totalPages);
     setPosts(shouldRefresh ? postData.data : [...posts, ...postData.data]);
     setPage(pageNumber + 1);
     setLoading(false);
   }
 
+  async function handleSignOut() {
+    await onSignOut();
+    navigation.navigate('SignedOut');
+  }
+
   useEffect(() => {
     loadPage();
+    navigation.setParams({
+      signOut: handleSignOut,
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -73,11 +91,14 @@ export default function Feed({ navigation }) {
               <Header>
                 <Avatar
                   source={{
-                    uri:
-                      'https://ifto-instagram.s3.amazonaws.com/posts/small-1574903084371.jpg',
+                    uri: 'https://api.adorable.io/avatars/48/.png',
                   }}
                 />
-                <Name>Bruno Lombardi</Name>
+                <Name>
+                  {item.author
+                    ? `${item.author.firstName} ${item.author.lastName}`
+                    : 'Sem Autor'}
+                </Name>
               </Header>
 
               <LazyImage
@@ -102,3 +123,12 @@ export default function Feed({ navigation }) {
     </>
   );
 }
+
+Feed.navigationOptions = ({ navigation }) => ({
+  headerRight: <SignOutButton onPress={navigation.getParam('signOut')} />,
+  headerRightContainerStyle: {
+    marginRight: 12,
+  },
+});
+
+export default Feed;
